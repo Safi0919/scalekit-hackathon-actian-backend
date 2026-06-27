@@ -13,7 +13,6 @@ def get_base_url() -> str:
 
 
 def ensure_collection(collection: str) -> None:
-    """Create the collection if it doesn't exist. Called lazily on first request."""
     try:
         resp = requests.get(f"{_base_url}/collections/{collection}", timeout=5)
         if resp.status_code == 404:
@@ -28,8 +27,6 @@ def ensure_collection(collection: str) -> None:
 def init_db(app) -> None:
     global _base_url
     host = app.config["VECTORAI_HOST"]
-    # Normalise to REST port 6573 regardless of what's in the env var
-    host = host.replace(":6574", ":6573").replace(":6575", ":6573")
-    if ":" not in host:
-        host = f"{host}:6573"
-    _base_url = f"http://{host}"
+    port = app.config["VECTORAI_PORT"]
+    _base_url = f"http://{host}:{port}"
+    logger.info("VectorAI base URL: %s", _base_url)
