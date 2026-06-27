@@ -3,6 +3,7 @@ services:
   - type: pserv
     name: vectorai
     runtime: image
+    plan: standard
     image:
       url: docker.io/actian/vectorai:latest
     envVars:
