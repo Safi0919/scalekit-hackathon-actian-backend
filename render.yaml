@@ -2,6 +2,7 @@ services:
   # VectorAI DB — private Docker service, not exposed to the internet
   - type: pserv
     name: vectorai
+    runtime: image
     image:
       url: docker.io/actian/vectorai:latest
     envVars:
