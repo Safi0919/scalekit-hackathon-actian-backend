@@ -23,7 +23,10 @@ services:
     startCommand: python app.py
     envVars:
       - key: VECTORAI_HOST
-        value: vectorai:6573        # Render internal hostname — service name + REST port
+        fromService:
+          name: vectorai
+          type: pserv
+          property: hostport
       - key: VECTORAI_COLLECTION
         value: ui_removals
       - key: PORT
