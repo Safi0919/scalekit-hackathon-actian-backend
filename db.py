@@ -1,7 +1,4 @@
 import requests
-import logging
-
-logger = logging.getLogger(__name__)
 
 _base_url: str = ""
 
@@ -13,18 +10,20 @@ def get_base_url() -> str:
 
 
 def ensure_collection(collection: str) -> None:
-    try:
-        resp = requests.get(f"{_base_url}/collections/{collection}", timeout=5)
-        logger.info("Collection check: %d %s", resp.status_code, resp.text[:200])
-        if resp.status_code == 404:
-            create = requests.put(f"{_base_url}/collections/{collection}", json={
-                "vectors": {"size": 1, "distance": "Euclid"}
-            }, timeout=5)
-            logger.info("Collection create: %d %s", create.status_code, create.text[:200])
-            create.raise_for_status()
-    except Exception as exc:
-        logger.error("Could not connect to VectorAI: %s", exc)
-        raise
+    check_url  = f"{_base_url}/collections/{collection}"
+    create_url = f"{_base_url}/collections/{collection}"
+
+    # Check if collection exists
+    check = requests.get(check_url, timeout=5)
+    print(f"[DB] GET {check_url} -> {check.status_code} | {check.text[:300]}", flush=True)
+
+    if check.status_code != 200:
+        # Create the collection
+        body = {"vectors": {"size": 1, "distance": "Euclid"}}
+        create = requests.put(create_url, json=body, timeout=5)
+        print(f"[DB] PUT {create_url} -> {create.status_code} | {create.text[:300]}", flush=True)
+        if create.status_code not in (200, 201):
+            raise RuntimeError(f"Failed to create collection: {create.status_code} {create.text}")
 
 
 def init_db(app) -> None:
@@ -32,4 +31,4 @@ def init_db(app) -> None:
     host = app.config["VECTORAI_HOST"]
     port = app.config["VECTORAI_PORT"]
     _base_url = f"http://{host}:{port}"
-    logger.info("VectorAI base URL: %s", _base_url)
+    print(f"[DB] VectorAI base URL: {_base_url}", flush=True)
