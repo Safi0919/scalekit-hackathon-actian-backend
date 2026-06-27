@@ -23,10 +23,7 @@ services:
     startCommand: python app.py
     envVars:
       - key: VECTORAI_HOST
-        fromService:
-          name: vectorai
-          type: pserv
-          property: hostport
+        value: vectorai:6573
       - key: VECTORAI_COLLECTION
         value: ui_removals
       - key: PORT
