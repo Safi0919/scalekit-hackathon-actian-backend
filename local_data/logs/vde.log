@@ -1,0 +1,35 @@
+[2026-06-27 20:11:13.388] [vde] [info] Data store configure CACHE_SIZE_MB succeeded
+[2026-06-27 20:11:13.388] [vde] [info] Data store configure DATADIR succeeded (/var/lib/actian-vectorai)
+[2026-06-27 20:11:13.388] [vde] [info] Data store configure INI succeeded (/var/lib/actian-vectorai/datastore.ini)
+[2026-06-27 20:11:13.425] [vde] [info] Data store initialization succeeded
+[2026-06-27 20:11:13.425] [vde] [info] VDE Engine initializing with engine_path: /var/lib/actian-vectorai
+[2026-06-27 20:11:13.428] [vde] [info] [GlobalVectorsCounter::Open] counter.btr open miss/fail (status=12), creating /var/lib/actian-vectorai/collections/counter.btr
+[2026-06-27 20:11:13.441] [vde] [info] [GlobalVectorsCounter::CreateFileStore] Created counter.btr with key index: /var/lib/actian-vectorai/collections/counter.btr
+[2026-06-27 20:11:13.442] [vde] [info] [FlushManager] Started (check_interval=30s, min_threshold=100, max_interval=3600s)
+[2026-06-27 20:11:13.442] [vde] [info] VectorIndexRegistry and VectorRepositoryRegistry created
+[2026-06-27 20:11:13.442] [vde] [info] [LicenseEnforcement] Started.  allowed=5000, current=0, blocked=no
+[2026-06-27 20:11:13.442] [vde] [info] [VDEEngine::ListCollections] Listing all collections
+[2026-06-27 20:11:13.442] [vde] [info] [VDEEngine::ListCollections] Found 0 collections
+[2026-06-27 20:11:13.478] [vde] [info] [LicenseEnforcement::refreshAllowedCount] prev_allowed=5000, new_allowed=5000, current=0, was_blocked=no, now_blocked=no
+[2026-06-27 20:14:50.816] [vde] [info] [VDEEngine::CollectionExists] Collection ui_removals not found
+[2026-06-27 20:14:50.816] [vde] [info] [VDEEngine::CreateCollection(unified)] Creating 'ui_removals' with 1 vector space(s)
+[2026-06-27 20:14:50.817] [vde] [info] [VDECollection::Init(unified)] name=ui_removals, num_vectors=1
+[2026-06-27 20:14:50.817] [vde] [info] [VDECollection::SaveMetadata] Saving metadata for collection 'ui_removals' to: /var/lib/actian-vectorai/collections/ui_removals/metadata.json
+[2026-06-27 20:14:50.817] [vde] [info] [VDECollection::SaveMetadata] Metadata saved to /var/lib/actian-vectorai/collections/ui_removals/metadata.json (storage_type=StorageType::BTRIEVE_FILE, index_driver_type=IndexDriverType::FAISS)
+[2026-06-27 20:14:50.818] [vde] [info] [PersistentIdMap::Open] File does not exist, creating: /var/lib/actian-vectorai/collections/ui_removals/segment_0/id_map.btr
+[2026-06-27 20:14:50.820] [vde] [info] [PersistentIdMap::CreateFileStore] id_map file created: /var/lib/actian-vectorai/collections/ui_removals/segment_0/id_map.btr
+[2026-06-27 20:14:50.820] [vde] [info] [PersistentIdMap::Open] Opened with 0 mappings, next_internal_id=0
+[2026-06-27 20:14:50.824] [vde] [info] [DenseBtrieveStore::Open] File does not exist, creating: /var/lib/actian-vectorai/collections/ui_removals/segment_0/vectors/_default/vectors.btr
+[2026-06-27 20:14:50.825] [vde] [info] [DenseBtrieveStore::CreateFile] Created file: /var/lib/actian-vectorai/collections/ui_removals/segment_0/vectors/_default/vectors.btr (dim=1, record_len=20)
+[2026-06-27 20:14:50.825] [vde] [info] [DenseBtrieveStore::Open] Opened (dim=1, record_len=20)
+[2026-06-27 20:14:50.829] [vde] [info] [SegmentStateStore::Open] File does not exist (status=12), creating: /var/lib/actian-vectorai/collections/ui_removals/segment_0/segment_state.btr
+[2026-06-27 20:14:50.830] [vde] [info] [SegmentStateStore::CreateFile] segment_state file created: /var/lib/actian-vectorai/collections/ui_removals/segment_0/segment_state.btr
+[2026-06-27 20:14:50.830] [vde] [info] [SegmentStateStore::Open] Freshly created segment_state.btr at /var/lib/actian-vectorai/collections/ui_removals/segment_0/segment_state.btr
+[2026-06-27 20:14:50.830] [vde] [info] [VDECollection::Init(unified)] LocalShard initialized with 1 vector space(s)
+[2026-06-27 20:14:50.831] [vde] [info] [FlushManager] Registered collection 'ui_removals'
+[2026-06-27 20:14:50.831] [vde] [info] [GlobalVectorsCounter::UpsertRecord] record not found for 'ui_removals' (status=4), creating
+[2026-06-27 20:14:50.831] [vde] [info] [GlobalVectorsCounter::UpsertRecord] upserted 'ui_removals' with tracked_count=0 via create
+[2026-06-27 20:14:50.831] [vde] [info] [VDEEngine::CreateCollection(unified)] Collection 'ui_removals' created successfully
+[2026-06-27 20:15:43.480] [vde] [info] [GlobalVectorsCounter::UpsertRecord] upserted 'ui_removals' with tracked_count=1 via update
+[2026-06-27 20:28:13.573] [vde] [info] [GlobalVectorsCounter::UpsertRecord] upserted 'ui_removals' with tracked_count=2 via update
+[2026-06-27 20:31:13.598] [vde] [info] [GlobalVectorsCounter::UpsertRecord] upserted 'ui_removals' with tracked_count=3 via update

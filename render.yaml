@@ -1,0 +1,27 @@
+services:
+  # VectorAI DB — private Docker service, not exposed to the internet
+  - type: pserv
+    name: vectorai
+    image:
+      url: docker.io/actian/vectorai:latest
+    envVars:
+      - key: ACTIAN_VECTORAI_ACCEPT_EULA
+        value: "YES"
+    disk:
+      name: vectorai-data
+      mountPath: /var/lib/actian-vectorai
+      sizeGB: 10
+
+  # Flask API — public web service
+  - type: web
+    name: actian-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: VECTORAI_HOST
+        value: vectorai:6574        # Render internal hostname — service name + gRPC port
+      - key: VECTORAI_COLLECTION
+        value: ui_removals
+      - key: PORT
+        value: "5000"
