@@ -1,20 +1,19 @@
 import time
 from datetime import datetime, timezone
 
-from actian_vectorai import PointStruct
+import requests
 from flask import Blueprint, current_app, jsonify, request
 
-from db import get_client
+from db import get_base_url
 
 ui_removals_bp = Blueprint("ui_removals", __name__)
 
 _DUMMY_VEC = [0.0]
 
 
-def _point_to_dict(point) -> dict:
-    d = dict(point.payload)
-    d["id"] = point.id
-    return d
+def _collection_url() -> str:
+    collection = current_app.config["VECTORAI_COLLECTION"]
+    return f"{get_base_url()}/collections/{collection}/points"
 
 
 def _ok(data, status: int = 200):
@@ -36,17 +35,19 @@ def list_ui_removals():
         return _err("limit and offset must be integers")
 
     try:
-        records, _ = get_client().points.scroll(
-            current_app.config["VECTORAI_COLLECTION"],
-            limit=5000,
-            with_payload=True,
-            with_vectors=False,
-        )
+        resp = requests.post(f"{_collection_url()}/scroll", json={
+            "limit": 5000,
+            "with_payload": True,
+            "with_vector": False,
+        })
+        resp.raise_for_status()
+        points = resp.json().get("result", {}).get("points", [])
     except Exception as exc:
         current_app.logger.error("VectorAI error in list_ui_removals: %s", exc)
         return _err("Database error", 500)
 
-    results = [_point_to_dict(r) for r in records]
+    results = [{"id": p["id"], **p["payload"]} for p in points]
+    results.sort(key=lambda r: r.get("created_at", ""), reverse=True)
     return _ok(results[offset: offset + limit])
 
 
@@ -55,20 +56,17 @@ def list_ui_removals():
 @ui_removals_bp.route("/ui-removals/<int:record_id>", methods=["GET"])
 def get_ui_removal(record_id: int):
     try:
-        records = get_client().points.get(
-            current_app.config["VECTORAI_COLLECTION"],
-            ids=[record_id],
-            with_payload=True,
-            with_vectors=False,
-        )
+        resp = requests.get(f"{_collection_url()}/{record_id}")
     except Exception as exc:
         current_app.logger.error("VectorAI error in get_ui_removal: %s", exc)
         return _err("Database error", 500)
 
-    if not records:
+    if resp.status_code == 404:
         return _err("Record not found", 404)
 
-    return _ok(_point_to_dict(records[0]))
+    resp.raise_for_status()
+    point = resp.json().get("result", {})
+    return _ok({"id": point["id"], **point["payload"]})
 
 
 # ── POST /api/ui-removals ─────────────────────────────────────────────────────
@@ -82,18 +80,13 @@ def create_ui_removal():
     now       = datetime.now(timezone.utc).isoformat()
     record_id = int(time.time() * 1_000_000)
 
-    # Store whatever the caller sends, plus auto-add id/timestamps
-    payload = {
-        **body,
-        "created_at": now,
-        "updated_at": now,
-    }
+    payload = {**body, "created_at": now, "updated_at": now}
 
     try:
-        get_client().points.upsert(
-            current_app.config["VECTORAI_COLLECTION"],
-            [PointStruct(id=record_id, vector=_DUMMY_VEC, payload=payload)],
-        )
+        resp = requests.put(_collection_url(), json={
+            "points": [{"id": record_id, "vector": _DUMMY_VEC, "payload": payload}]
+        })
+        resp.raise_for_status()
     except Exception as exc:
         current_app.logger.error("VectorAI error in create_ui_removal: %s", exc)
         return _err("Database error", 500)
@@ -109,35 +102,29 @@ def update_ui_removal(record_id: int):
     if not body:
         return _err("Request body must be JSON")
 
-    client     = get_client()
-    collection = current_app.config["VECTORAI_COLLECTION"]
-
+    # Fetch existing point
     try:
-        existing = client.points.get(
-            collection,
-            ids=[record_id],
-            with_payload=True,
-            with_vectors=False,
-        )
+        resp = requests.get(f"{_collection_url()}/{record_id}")
     except Exception as exc:
         current_app.logger.error("VectorAI error in update_ui_removal (get): %s", exc)
         return _err("Database error", 500)
 
-    if not existing:
+    if resp.status_code == 404:
         return _err("Record not found", 404)
 
-    # Merge whatever fields the caller provides into the existing payload
+    existing_payload = resp.json().get("result", {}).get("payload", {})
+
     merged = {
-        **existing[0].payload,
+        **existing_payload,
         **body,
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
 
     try:
-        client.points.upsert(
-            collection,
-            [PointStruct(id=record_id, vector=_DUMMY_VEC, payload=merged)],
-        )
+        resp = requests.put(_collection_url(), json={
+            "points": [{"id": record_id, "vector": _DUMMY_VEC, "payload": merged}]
+        })
+        resp.raise_for_status()
     except Exception as exc:
         current_app.logger.error("VectorAI error in update_ui_removal (upsert): %s", exc)
         return _err("Database error", 500)

@@ -1,30 +1,23 @@
-from actian_vectorai import VectorAIClient, VectorParams, Distance, CollectionExistsError
+import requests
 
-# Module-level singleton — VectorAI client is thread-safe and long-lived
-_client: VectorAIClient | None = None
+_base_url: str = ""
 
 
-def get_client() -> VectorAIClient:
-    if _client is None:
-        raise RuntimeError("VectorAI client not initialised — call init_db(app) first")
-    return _client
+def get_base_url() -> str:
+    if not _base_url:
+        raise RuntimeError("DB not initialised — call init_db(app) first")
+    return _base_url
 
 
 def init_db(app) -> None:
-    """
-    Called once from the app factory.
-    Creates the VectorAI client and ensures the collection exists.
-    Uses a 1-dimensional dummy vector (Euclid distance) because this project
-    uses VectorAI as a document store, not for semantic search.
-    """
-    global _client
-    _client = VectorAIClient(app.config["VECTORAI_HOST"])
-    _client.connect()
+    global _base_url
+    host = app.config["VECTORAI_HOST"]
+    # Use the HTTP REST port (6573), not the gRPC port (6574)
+    _base_url = f"http://{host.replace(':6574', ':6573').replace(':6575', ':6573')}"
 
-    try:
-        _client.collections.create(
-            app.config["VECTORAI_COLLECTION"],
-            vectors_config=VectorParams(size=1, distance=Distance.Euclid),
-        )
-    except CollectionExistsError:
-        pass
+    collection = app.config["VECTORAI_COLLECTION"]
+    resp = requests.get(f"{_base_url}/collections/{collection}")
+    if resp.status_code == 404:
+        requests.put(f"{_base_url}/collections/{collection}", json={
+            "vectors": {"size": 1, "distance": "Euclid"}
+        })

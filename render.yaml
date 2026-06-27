@@ -21,7 +21,7 @@ services:
     startCommand: python app.py
     envVars:
       - key: VECTORAI_HOST
-        value: vectorai:6574        # Render internal hostname — service name + gRPC port
+        value: vectorai:6573        # Render internal hostname — service name + REST port
       - key: VECTORAI_COLLECTION
         value: ui_removals
       - key: PORT
