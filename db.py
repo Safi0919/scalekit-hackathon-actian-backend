@@ -15,10 +15,13 @@ def get_base_url() -> str:
 def ensure_collection(collection: str) -> None:
     try:
         resp = requests.get(f"{_base_url}/collections/{collection}", timeout=5)
+        logger.info("Collection check: %d %s", resp.status_code, resp.text[:200])
         if resp.status_code == 404:
-            requests.put(f"{_base_url}/collections/{collection}", json={
+            create = requests.put(f"{_base_url}/collections/{collection}", json={
                 "vectors": {"size": 1, "distance": "Euclid"}
             }, timeout=5)
+            logger.info("Collection create: %d %s", create.status_code, create.text[:200])
+            create.raise_for_status()
     except Exception as exc:
         logger.error("Could not connect to VectorAI: %s", exc)
         raise

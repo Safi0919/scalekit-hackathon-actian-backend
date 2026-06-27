@@ -7,6 +7,7 @@ services:
     region: oregon
     image:
       url: docker.io/actian/vectorai:latest
+    port: 6573
     envVars:
       - key: ACTIAN_VECTORAI_ACCEPT_EULA
         value: "YES"
