@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import requests
 from flask import Blueprint, current_app, jsonify, request
 
-from db import get_base_url
+from db import get_base_url, ensure_collection
 
 ui_removals_bp = Blueprint("ui_removals", __name__)
 
@@ -13,6 +13,7 @@ _DUMMY_VEC = [0.0]
 
 def _collection_url() -> str:
     collection = current_app.config["VECTORAI_COLLECTION"]
+    ensure_collection(collection)
     return f"{get_base_url()}/collections/{collection}/points"
 
 

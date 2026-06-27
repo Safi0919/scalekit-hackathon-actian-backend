@@ -11,7 +11,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    init_db(app)  # connects to VectorAI and ensures collection exists
+    init_db(app)  # stores the VectorAI base URL; collection created lazily on first request
 
     app.register_blueprint(ui_removals_bp, url_prefix="/api")
 
